@@ -81,7 +81,7 @@ func periodicallyCleanup() {
 	}
 
 	if retryErr == nil {
-		log.Info("Cleanup Sucessfully. Sleep while waiting for next run in 24 hour")
+		log.Info("Cleanup Sucessfully. Sleep while waiting for next run")
 	}
 
 }
@@ -118,7 +118,7 @@ func periodicallyBackup() {
 	}
 
 	if retryErr == nil {
-		log.Info("Backup Sucessfully. Sleep while waiting for next run in 24 hour")
+		log.Info("Backup Sucessfully. Sleep while waiting for next run")
 	}
 
 }
