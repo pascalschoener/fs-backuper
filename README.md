@@ -28,7 +28,7 @@ You can also use the prebuild docker-containers in https://hub.docker.com/reposi
     restart: unless-stopped
     volumes:
       - ./backups:/tmp/backups
-      - ./containers/nextcloud:/tmp/nextcloud:ro
+      - ./source:/tmp/source:ro
     environment:
       - BACKUP_MODE=1
       - SOURCE_DIR=/tmp/source
