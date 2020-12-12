@@ -17,15 +17,19 @@ This is a simple golang based FS-Backuper with 3 different backup-modes
 <br>
 <br>
 
+## docker
+
+You can also use the prebuild docker-containers in https://hub.docker.com/repository/docker/pascalschoener/fs-backuper
+
 ## docker-compose
 ``` yaml
   fs-backuper:
-    image: pascalschoener/fs-backuper:1.0
+    image: pascalschoener/fs-backuper
     container_name: fs-backuper
     restart: unless-stopped
     volumes:
       - ./backups:/tmp/backups
-      - ./containers/nextcloud:/tmp/nextcloud:ro
+      - ./source:/tmp/source:ro
     environment:
       - BACKUP_MODE=1
       - SOURCE_DIR=/tmp/source
