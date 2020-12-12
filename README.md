@@ -19,7 +19,7 @@ This is a simple golang based FS-Backuper with 3 different backup-modes
 ## docker-compose
 ``` yaml
   fs-backuper:
-    image: pascalschoener/fs-backuper:1.0
+    image: pascalschoener/fs-backuper
     container_name: fs-backuper
     restart: unless-stopped
     volumes:
