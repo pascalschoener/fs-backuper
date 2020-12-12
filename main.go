@@ -18,7 +18,7 @@ func doBackup(sourceDir string, targetDir string, mode int) error {
 	switch {
 	case mode == 1:
 		log.Info("BACKUP_MODE=1 Simple copy")
-		cmd = exec.Command("/bin/sh", "-c", "cp -r "+sourceDir+" "+targetDir+"/backup_"+time.Now().Format("20060102150405")+"")
+		cmd = exec.Command("/bin/sh", "-c", "cp -r "+sourceDir+" "+targetDir+"/backup_"+time.Now().Format("20060102150405"))
 
 	case mode == 2:
 		log.Info("BACKUP_MODE=2 tar without compression")
@@ -37,8 +37,56 @@ func doBackup(sourceDir string, targetDir string, mode int) error {
 	return nil
 }
 
-func main() {
+func cleanupBackups(targetDir string, retentionDays int) error {
 
+	cmd := exec.Command("/bin/sh", "-c", "find "+targetDir+"/* -mtime +"+fmt.Sprint(retentionDays)+" -exec rm -rf {} \\;")
+
+	err := cmd.Run()
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func periodicallyCleanup() {
+	target := os.Getenv("TARGET_DIR")
+	retention := os.Getenv("BACKUP_RETENTION")
+
+	if target == "" || retention == "" {
+		log.Errorf("Error while getting needed Env-Variables: target=" + target + " retention=" + retention)
+	}
+
+	retentionInt, err := strconv.Atoi(retention)
+
+	if err != nil {
+		log.Error(err)
+	}
+
+	var retryErr error
+
+	for i := 0; i < 3; i++ {
+		err := cleanupBackups(target, retentionInt)
+		if err == nil {
+			break
+		}
+		retryErr = err
+		log.Warnf("Error while processing Cleanup (Retry "+fmt.Sprint(i+1)+" of 3): %s", err)
+		time.Sleep(3 * time.Second)
+	}
+
+	if retryErr != nil {
+		log.Errorf("No Cleanup was done after 3 retries because of Error: %s", retryErr)
+	}
+
+	if retryErr == nil {
+		log.Info("Cleanup Sucessfully. Sleep while waiting for next run in 24 hour")
+	}
+
+}
+
+func periodicallyBackup() {
 	source := os.Getenv("SOURCE_DIR")
 	target := os.Getenv("TARGET_DIR")
 	mode := os.Getenv("BACKUP_MODE")
@@ -53,25 +101,37 @@ func main() {
 		log.Error(err)
 	}
 
+	var retryErr error
+
+	for i := 0; i < 3; i++ {
+		err := doBackup(source, target, modeInt)
+		if err == nil {
+			break
+		}
+		retryErr = err
+		log.Warnf("Error while processing Backup (Retry "+fmt.Sprint(i+1)+" of 3): %s", err)
+		time.Sleep(3 * time.Second)
+	}
+
+	if retryErr != nil {
+		log.Errorf("No backup was done after 3 retries because of Error: %s", retryErr)
+	}
+
+	if retryErr == nil {
+		log.Info("Backup Sucessfully. Sleep while waiting for next run in 24 hour")
+	}
+
+}
+
+func main() {
+
+	cleanupDisabled := os.Getenv("BACKUP_CLEANUP_DISABLE")
+
 	for {
-		var retryErr error
+		go periodicallyBackup()
 
-		for i := 0; i < 3; i++ {
-			err := doBackup(source, target, modeInt)
-			if err == nil {
-				break
-			}
-			retryErr = err
-			log.Warnf("Error while processing Backup (Retry "+fmt.Sprint(i+1)+" of 3): %s", err)
-			time.Sleep(3 * time.Second)
-		}
-
-		if retryErr != nil {
-			log.Errorf("No backup was done after 3 retries because of Error: %s", retryErr)
-		}
-
-		if retryErr == nil {
-			log.Info("Backup Sucessfully. Sleep while waiting for next run in 24 hour")
+		if cleanupDisabled != "true" {
+			go periodicallyCleanup()
 		}
 		time.Sleep(24 * time.Hour)
 	}
