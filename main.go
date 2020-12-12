@@ -126,6 +126,17 @@ func periodicallyBackup() {
 func main() {
 
 	cleanupDisabled := os.Getenv("BACKUP_CLEANUP_DISABLE")
+	interval := os.Getenv("BACKUP_CLEANUP_DURATION")
+
+	if interval == "" {
+		log.Info("BACKUP_CLEANUP_DURATION was not set, set it to 24h")
+		interval = "24h"
+	}
+
+	duration, err := time.ParseDuration(interval)
+	if err != nil {
+		log.Fatalf("Error while setting duration: %s", err)
+	}
 
 	for {
 		go periodicallyBackup()
@@ -133,7 +144,7 @@ func main() {
 		if cleanupDisabled != "true" {
 			go periodicallyCleanup()
 		}
-		time.Sleep(24 * time.Hour)
+		time.Sleep(duration)
 	}
 
 }
