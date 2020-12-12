@@ -16,6 +16,10 @@ This is a simple golang based FS-Backuper with 3 different backup-modes
 <br>
 <br>
 
+## docker
+
+You can also use the prebuild docker-containers in https://hub.docker.com/repository/docker/pascalschoener/fs-backuper
+
 ## docker-compose
 ``` yaml
   fs-backuper:
