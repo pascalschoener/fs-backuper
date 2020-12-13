@@ -35,3 +35,6 @@ You can also use the prebuild docker-containers in https://hub.docker.com/reposi
       - SOURCE_DIR=/tmp/source
       - TARGET_DIR=/tmp/backups
 ```
+
+#Ideas
+* Backup to ftp?
