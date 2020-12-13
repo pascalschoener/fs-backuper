@@ -36,5 +36,5 @@ You can also use the prebuild docker-containers in https://hub.docker.com/reposi
       - TARGET_DIR=/tmp/backups
 ```
 
-#Ideas
-* Backup to ftp?
+# Ideas
+* Backup to ftp or s3?
