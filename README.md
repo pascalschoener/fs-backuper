@@ -1,6 +1,6 @@
 # fs-backuper
 
-This is a simple golang based FS-Backuper with 3 different backup-modes
+This is a simple golang based FS-Backuper (sideca) with 3 different backup-modes
 
 ## Env
 
